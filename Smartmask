@@ -1,0 +1,68 @@
+from gpio import * 
+from time import *
+import random
+
+motionSensor = 0
+webcam =0 
+lcd=0
+
+motionState = 0
+
+tempSensor = 0
+
+def Motion():
+	print("Motion function")
+	motionSensor = digitalRead(2)
+	print("Detecting Motion......")
+	if(motionSensor==HIGH):
+		customWrite(3,"Welcome")
+		customWrite(3,"Let us check for mask and temp")
+		CameraAndTempState()
+	
+	else:
+		customWrite(0,0)
+		customWrite(3,"")
+		customWrite(5,(0,1))
+		print("No movement")
+	
+def CameraAndTempState():
+	print("Read temp sensor and camera")
+	temp = analogRead(4)
+	print(temp)
+	customWrite(3,"Temp Reading:" + str(temp))
+	delay(1000)
+	customWrite(3,"Checking for mask")	
+	
+	maskState = random.randint(0,1) #Simulate mask reading 0, no mask 1 has mask
+	print("Mask state")
+	print(maskState)
+	
+	if((temp > 122) and (maskState == 1)):
+		print("good temp and mask on")
+		customWrite(0,1)
+		customWrite(3,'Temp: '+ str(temp) + 'Low')
+		customWrite(5,(1,0))
+		customWrite(3,"Welcome, Enter")
+		delay(3000)
+		
+	if(temp > 122 and maskState == 0):
+		print("Bad temp and no mask")
+		customWrite(0,1)
+		customWrite(3,'Temp:' + str(temp) + ' High')
+		customWrite(5,(0,1))
+		customWrite(3,"Access Denied")
+		delay(3000)
+	
+def main():
+	pinMode(2,IN) # declared motion sensor iput
+	pinMode(0,OUTPUT) #OUTPUT for webcam
+	pinMode(4,INPUT) #INPUT FROM Temp sensor
+
+	print("Starting program")
+	while True:
+		Motion()
+				
+		delay(2000)
+		
+if __name__ == "__main__":
+	main()
